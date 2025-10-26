@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Ensure proper rendering and touch zooming on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Content to File</title>
+    <!-- We'll use Tailwind CSS for clean, modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Using Tailwind's 'Inter' font for a clean look */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main container card -->
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">
+            Code Saver: File Generator
+        </h1>
+        <p class="text-gray-600 text-center mb-6">
+            Instantly convert any raw HTML, CSS, or JavaScript snippet into a ready-to-use file. Paste your content, choose your filename, and download.
+        </p>
+
+        <!-- Textarea for HTML content -->
+        <textarea 
+            id="htmlContent" 
+            class="w-full h-64 sm:h-80 p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm" 
+            placeholder="<!DOCTYPE html>
+<html>
+<head>
+    <title>My Page</title>
+</head>
+<body>
+    <h1>Welcome!</h1>
+</body>
+</html>"></textarea>
+        
+        <!-- File input and download button group -->
+        <div class="flex flex-col sm:flex-row gap-3 mt-4">
+             <!-- Filename input -->
+             <input 
+                type="text" 
+                id="fileNameInput" 
+                placeholder="Enter filename (e.g., index.html)"
+                class="flex-grow p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+             >
+             <!-- Button container -->
+             <div class="flex gap-3">
+                 <!-- Clear button -->
+                 <button 
+                    id="clearBtn" 
+                    class="bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200 w-1/2 sm:w-auto"
+                 >
+                    Clear
+                </button>
+                 <!-- Download button -->
+                 <button 
+                    id="downloadBtn" 
+                    class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 w-1/2 sm:w-auto"
+                 >
+                    Download
+                </button>
+             </div>
+        </div>
+        
+        <!-- Simple message area for feedback -->
+        <div id="messageArea" class="text-red-500 text-sm mt-3 h-4"></div>
+    </div>
+
+    <script>
+        // Get references to the DOM elements
+        const downloadBtn = document.getElementById('downloadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const htmlContentEl = document.getElementById('htmlContent');
+        const fileNameInputEl = document.getElementById('fileNameInput');
+        const messageArea = document.getElementById('messageArea');
+
+        downloadBtn.addEventListener('click', function() {
+            // Clear any previous messages
+            messageArea.textContent = '';
+            
+            // 1. Get the content from the textarea
+            const htmlContent = htmlContentEl.value;
+
+            if (!htmlContent.trim()) {
+                // Show a message instead of using alert()
+                messageArea.textContent = 'The content area is empty. Please paste your HTML code.';
+                return;
+            }
+
+            // 2. Get the desired filename, or use a default
+            let fileName = fileNameInputEl.value.trim();
+            if (fileName === '') {
+                fileName = 'index.html';
+            }
+
+            // 3. Ensure the filename ends with .html (if no extension is given)
+            if (!fileName.includes('.')) {
+                fileName += '.html';
+            }
+
+            // 4. Create a Blob (a file-like object) from the content
+            // The MIME type 'text/html' tells the browser what kind of file it is.
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+
+            // 5. Create a temporary link element to trigger the download
+            const link = document.createElement('a');
+            
+            // 6. Set the link's href to a temporary URL representing the Blob data
+            link.href = URL.createObjectURL(blob);
+            
+            // 7. Set the download attribute to the desired filename
+            link.download = fileName;
+            
+            // 8. Simulate a click on the link to start the download
+            document.body.appendChild(link); // Required for Firefox
+            link.click();
+
+            // 9. Clean up by removing the temporary link and revoking the object URL
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href); // Free up browser memory
+        });
+
+        // Add event listener for the clear button
+        clearBtn.addEventListener('click', function() {
+            htmlContentEl.value = ''; // Clear the textarea
+            messageArea.textContent = ''; // Clear any error messages
+            htmlContentEl.focus(); // Put cursor back in textarea
+        });
+    </script>
+
+</body>
+</html>
